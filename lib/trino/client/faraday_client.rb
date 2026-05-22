@@ -91,7 +91,7 @@ module Trino::Client
       if options[:gzip]
         faraday.request :gzip
       end
-      faraday.response :logger if options[:http_debug]
+      faraday.response :logger, options[:http_debug_logger] if options[:http_debug]
       faraday.adapter Faraday.default_adapter
     end
 
