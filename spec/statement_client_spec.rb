@@ -358,7 +358,7 @@ describe Trino::Client::StatementClient do
     it "logs to the custom logger" do
       log_output = StringIO.new
       custom_logger = Logger.new(log_output)
-      custom_logger.progname = "trino-test"
+      custom_logger.formatter = proc { |_, _, _, msg| "[CUSTOM] #{msg}\n" }
 
       stub_request(:post, "localhost/v1/statement").
         to_return(body: response_json.to_json)
@@ -366,7 +366,7 @@ describe Trino::Client::StatementClient do
       f = Trino::Client.faraday_client(server: "localhost", http_debug: true, http_debug_logger: custom_logger)
       f.post("/v1/statement", "select 1")
 
-      expect(log_output.string).to include("trino-test")
+      expect(log_output.string).to include("[CUSTOM]")
     end
 
     it "logs to stdout when http_debug_logger is not provided" do
