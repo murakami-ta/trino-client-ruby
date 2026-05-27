@@ -113,6 +113,7 @@ $ bundle exec rake modelgen:latest
 * **http_headers** sets custom HTTP headers. It must be a Hash of string to string.
 * **http_proxy** sets host:port of a HTTP proxy server.
 * **http_debug** enables debug message to STDOUT for each HTTP requests.
+* **http_debug_logger** sets a custom `Logger` instance for HTTP debug logs. Requires **http_debug** to be `true`.
 * **http_open_timeout** sets timeout in seconds to open new HTTP connection.
 * **http_timeout** sets timeout in seconds to read data from a server.
 * **gzip** enables gzip compression.

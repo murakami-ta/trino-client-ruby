@@ -354,6 +354,44 @@ describe Trino::Client::StatementClient do
     end
   end
 
+  describe "http_debug_logger" do
+    it "logs to the custom logger" do
+      log_output = StringIO.new
+      custom_logger = Logger.new(log_output)
+      custom_logger.formatter = proc { |_, _, _, msg| "[CUSTOM] #{msg}\n" }
+
+      stub_request(:post, "localhost/v1/statement").
+        to_return(body: response_json.to_json)
+
+      f = Trino::Client.faraday_client(server: "localhost", http_debug: true, http_debug_logger: custom_logger)
+      f.post("/v1/statement", "select 1")
+
+      expect(log_output.string).to include("[CUSTOM]")
+    end
+
+    it "logs to stdout when http_debug_logger is not provided" do
+      stub_request(:post, "localhost/v1/statement").
+        to_return(body: response_json.to_json)
+
+      f = Trino::Client.faraday_client(server: "localhost", http_debug: true)
+
+      expect { f.post("/v1/statement", "select 1") }.to output.to_stdout_from_any_process
+    end
+
+    it "does not log when http_debug is not set" do
+      log_output = StringIO.new
+      custom_logger = Logger.new(log_output)
+
+      stub_request(:post, "localhost/v1/statement").
+        to_return(body: response_json.to_json)
+
+      f = Trino::Client.faraday_client(server: "localhost", http_debug_logger: custom_logger)
+      f.post("/v1/statement", "select 1")
+
+      expect(log_output.string).to be_empty
+    end
+  end
+
   describe "ssl" do
     it "is disabled by default" do
       f = Query.__send__(:faraday_client, {
